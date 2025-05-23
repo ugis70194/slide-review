@@ -1,0 +1,12 @@
+name: Render slide.pdf
+on: push
+jobs:
+  render-paper:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: typst-community/setup-typst@v4
+      - run: sudo apt update && apt-get install -y fonts-noto-cjk
+      - run: fc-cache -fv
+      - run: typst fonts
+      - run: typst compile slide.typ slide.pdf
