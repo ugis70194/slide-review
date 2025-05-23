@@ -26,7 +26,6 @@
 #show: show-theorion
 #set text(font: "Noto Serif CJK JP", lang: "jp")
 
-
 // cetz and fletcher bindings for touying
 #let cetz-canvas = touying-reducer.with(reduce: cetz.canvas, cover: cetz.draw.hide.with(bounds: true))
 #let fletcher-diagram = touying-reducer.with(reduce: fletcher.diagram, cover: fletcher.hide)
