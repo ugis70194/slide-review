@@ -13,13 +13,12 @@ jobs:
         script: |
           const comment = context.payload.comment.body;
           const issueNumber = context.payload.issue.number;
-          const prNumber = context.payload.issue.pull_request.number;
           const repo = context.repo;
 
           if (!comment.includes('AI feedback')) {
             await github.rest.issues.createComment({
               ...repo,
               issue_number: issueNumber,
-              body: `this is AI feedback\n Thank you for your feedback on PR #${prNumber}!`
+              body: `this is AI feedback\n Thank you for your feedback on PR #${issueNumber}!`
             });
           }
