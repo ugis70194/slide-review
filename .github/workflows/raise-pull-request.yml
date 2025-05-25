@@ -1,0 +1,39 @@
+name: raise-pull-request
+on: 
+  push:
+    branches:
+      - writing
+    paths:
+      - '*.pdf'
+  
+jobs:
+  raise_pull_request:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - name: Get a pull request head ref
+        id: pull_request_head
+        run: |
+          case "${{ github.event_name }}" in
+            "pull_request") echo "ref=${{ github.event.pull_request.head.ref }}" >> GITHUB_OUTPUT ;;
+            "push") echo "ref=${{ github.ref_name }}" >> $GITHUB_OUTPUT ;;
+            *) exit 1 ;;
+          esac
+
+      - name: Create a pull request
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const headRef = '${{ steps.pull_request_head.outputs.ref }}'
+            const createParams = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              base: 'main',
+              head: headRef,
+              title: `${headRef.substring(0,1).toUpperCase()}${headRef.substring(1)}`
+            }
+            const { data } = await github.rest.pulls.create(createParams)
+            return data
