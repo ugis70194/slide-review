@@ -3,15 +3,36 @@ on: issue_comment
 
 jobs:
   feedback:
-    name: test
-    if: ${{ github.event.issue.pull_request }}
+    name: Feedback on PR from Gemini
+    # pull request にコメントされたとき、かつ、コメントしたユーザーが GitHub Actions Bot でない場合に実行
+    if: ${{ github.event.issue.pull_request && github.event.comment.user.login != 'github-actions[bot]'}}
     runs-on: ubuntu-latest
     steps:
-    - name: feedback
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - name: Install dependencies
+      run: bun install
+      working-directory: ./github/scripts 
+
+    - name: Run feedback script
+      id: get_feedback
+      run: |
+        result=$(bun run ./.index.ts "${{ github.event.comment.body }}")
+        echo "result=$result" >> $GITHUB_OUTPUT
+      working-directory: ./github/scripts
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+    - name: Post feedback comment
       uses: actions/github-script@v7
       with:
         script: |
-          const comment = context.payload.comment.body;
           const issueNumber = context.payload.issue.number;
           const repo = context.repo;
 
@@ -19,6 +40,6 @@ jobs:
             await github.rest.issues.createComment({
               ...repo,
               issue_number: issueNumber,
-              body: `this is AI feedback\n Thank you for your feedback on PR #${issueNumber}!`
+              body: `${{ steps.get_feedback.outputs.result }}`
             });
           }
