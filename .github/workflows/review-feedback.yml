@@ -1,0 +1,13 @@
+name: review-feedback
+on: issue_comment
+
+jobs:
+  feedback:
+    name: test
+    if: ${{ github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: a
+      run: echo A comment on PR "$NUMBER"
+      env: 
+        NUMBER: ${{ github.event.issue.number }}
