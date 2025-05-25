@@ -22,9 +22,12 @@ jobs:
 
     - name: Run feedback script
       id: get_feedback
+      # result<<EOF の "EOF" は EOF を区切り文字として扱いますという宣言
       run: |
         result=$(bun run index.ts "${{ github.event.comment.body }}")
-        echo "result=$result" >> $GITHUB_OUTPUT
+        echo "result<<EOF" >> $GITHUB_OUTPUT
+        echo "$result"     >> $GITHUB_OUTPUT
+        echo "EOF"         >> $GITHUB_OUTPUT
       working-directory: ./.github/scripts
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
