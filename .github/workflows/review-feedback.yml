@@ -5,7 +5,7 @@ jobs:
   feedback:
     name: Feedback on PR from Gemini
     # pull request にコメントされたとき、かつ、コメントしたユーザーが GitHub Actions Bot でない場合に実行
-    if: ${{ github.event.issue.pull_request && github.event.comment.user.login != 'github-actions[bot]'}}
+    #if: ${{ github.event.issue.pull_request && github.event.comment.user.login != 'github-actions[bot]'}}
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -18,14 +18,14 @@ jobs:
 
     - name: Install dependencies
       run: bun install
-      working-directory: ./github/scripts 
+      working-directory: ./.github/scripts
 
     - name: Run feedback script
       id: get_feedback
       run: |
-        result=$(bun run ./.index.ts "${{ github.event.comment.body }}")
+        result=$(bun run index.ts "${{ github.event.comment.body }}")
         echo "result=$result" >> $GITHUB_OUTPUT
-      working-directory: ./github/scripts
+      working-directory: ./.github/scripts
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
@@ -40,6 +40,6 @@ jobs:
             await github.rest.issues.createComment({
               ...repo,
               issue_number: issueNumber,
-              body: `${{ steps.get_feedback.outputs.result }}`
+              body: `AI feedback\n${{ steps.get_feedback.outputs.result }}`
             });
           }
