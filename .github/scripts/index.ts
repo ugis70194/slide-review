@@ -3,11 +3,14 @@ import { readFile } from "fs/promises";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-function readUserInput(): string | null {
-  const input = process.argv[2];
-  if (!input) {
-    console.error("please input prompt by argument.");
-    return null;
+async function readUserInput(): Promise<string | null> {
+  const input = await new Promise<string>(resolve => {
+    let data = '';
+    process.stdin.on('data', chunk => data += chunk);
+    process.stdin.on('end', () => resolve(data));
+  });
+  if(!input) {
+    console.error("input is empty");
   }
   return input;
 }
@@ -26,7 +29,7 @@ async function main() {
   const instraction = await readInstraction();
   if(!instraction) return;
 
-  const userInput = readUserInput();
+  const userInput = await readUserInput();
   if(!userInput) return;
   
   const response = await ai.models.generateContent({

@@ -1,11 +1,11 @@
 name: review-feedback
 on: issue_comment
-
+# act で実行刷る場合は act -e .github/workflows/issue_comment.json とする
 jobs:
   feedback:
     name: Feedback on PR from Gemini
     # pull request にコメントされたとき、かつ、コメントしたユーザーが GitHub Actions Bot でない場合に実行
-    if: ${{ github.event.issue.pull_request && github.event.comment.user.login != 'github-actions[bot]'}}
+    #if: ${{ github.event.issue.pull_request && github.event.comment.user.login != 'github-actions[bot]'}}
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -24,7 +24,7 @@ jobs:
       id: get_feedback
       # result<<EOF の "EOF" は EOF を区切り文字として扱いますという宣言
       run: |
-        result=$(bun run index.ts "${{ github.event.comment.body }}")
+        result=$(echo "${{ github.event.comment.body }}" | bun run index.ts)
         echo "result<<EOF" >> $GITHUB_OUTPUT
         echo "$result"     >> $GITHUB_OUTPUT
         echo "EOF"         >> $GITHUB_OUTPUT
