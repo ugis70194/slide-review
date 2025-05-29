@@ -24,7 +24,7 @@ jobs:
       id: get_feedback
       # result<<EOF の "EOF" は EOF を区切り文字として扱いますという宣言
       run: |
-        result=$(echo "${{ github.event.comment.body }}" | bun run index.ts)
+        result=$(echo "${{ github.event.comment.body }}" | tr -d '\r' | bun run index.ts)
         echo "result<<EOF" >> $GITHUB_OUTPUT
         echo "$result"     >> $GITHUB_OUTPUT
         echo "EOF"         >> $GITHUB_OUTPUT
