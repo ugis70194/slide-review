@@ -12,7 +12,7 @@
     - [x] script に入力を与えられるようにする
     - [x] actions に script を組み込む 
 - [x] フードバック用の観点を与えるためのプロンプトを書く
-  - [ ] prompt.txt とかにまとめて、外部から読み込めるように review-feedback で実行するスクリプトを変えた方が良さそう
+  - [x] .github/instractions/feedback.instraction.md にfeedback用のプロンプトを書くようにした
 
 
 ## フィードバックのアイデア
@@ -28,3 +28,9 @@
 
 ### 仮解答
   人間がレビューしたものを見て、AIがレビューに対してフィードバックし、AIもレビューする。という方式にした方が良さそう
+
+## 問題点
+
+- feedbackが遅い
+  - node_moduleのcacheをすると良さそう
+    - https://qiita.com/mihyon/items/407b0df9c0a0f0f45bbc

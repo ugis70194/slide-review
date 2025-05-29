@@ -5,7 +5,7 @@ jobs:
   feedback:
     name: Feedback on PR from Gemini
     # pull request にコメントされたとき、かつ、コメントしたユーザーが GitHub Actions Bot でない場合に実行
-    #if: ${{ github.event.issue.pull_request && github.event.comment.user.login != 'github-actions[bot]'}}
+    if: ${{ github.event.issue.pull_request && github.event.comment.user.login != 'github-actions[bot]'}}
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -40,10 +40,10 @@ jobs:
           const issueNumber = context.payload.issue.number;
           const repo = context.repo;
 
-          if (!comment.includes('AI feedback')) {
+          if (!comment.includes('AI feedback') && comment.includes('review')) {
             await github.rest.issues.createComment({
               ...repo,
               issue_number: issueNumber,
-              body: `AI feedback\n${{ steps.get_feedback.outputs.result }}`
+              body: `**AI feedback**\n${{ steps.get_feedback.outputs.result }}`
             });
           }
