@@ -1,13 +1,49 @@
 name: review-feedback
 on: issue_comment
-
+# act で実行刷る場合は act -e .github/workflows/issue_comment.json とする
 jobs:
   feedback:
-    name: test
-    if: ${{ github.event.issue.pull_request }}
+    name: Feedback on PR from Gemini
+    # pull request にコメントされたとき、かつ、コメントしたユーザーが GitHub Actions Bot でない場合に実行
+    #if: ${{ github.event.issue.pull_request && github.event.comment.user.login != 'github-actions[bot]'}}
     runs-on: ubuntu-latest
     steps:
-    - name: a
-      run: echo A comment on PR "$NUMBER"
-      env: 
-        NUMBER: ${{ github.event.issue.number }}
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - name: Install dependencies
+      run: bun install
+      working-directory: ./.github/scripts
+
+    - name: Run feedback script
+      id: get_feedback
+      # result<<EOF の "EOF" は EOF を区切り文字として扱いますという宣言
+      run: |
+        result=$(echo "${{ github.event.comment.body }}" | tr -d '\r' | bun run index.ts)
+        echo "result<<EOF" >> $GITHUB_OUTPUT
+        echo "$result"     >> $GITHUB_OUTPUT
+        echo "EOF"         >> $GITHUB_OUTPUT
+      working-directory: ./.github/scripts
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+    - name: Post feedback comment
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const comment = context.payload.comment.body;
+          const issueNumber = context.payload.issue.number;
+          const repo = context.repo;
+
+          if (!comment.includes('AI feedback') && comment.includes('review')) {
+            await github.rest.issues.createComment({
+              ...repo,
+              issue_number: issueNumber,
+              body: `**AI feedback**\n${{ steps.get_feedback.outputs.result }}`
+            });
+          }

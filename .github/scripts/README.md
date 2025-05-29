@@ -1,0 +1,3 @@
+# gemini API
+
+instractions/feedback.instraction.md から読み込んだプロンプトを基に人間のレビューに対してフィードバックを提供する
